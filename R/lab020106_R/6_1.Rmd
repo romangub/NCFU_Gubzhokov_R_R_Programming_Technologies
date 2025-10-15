@@ -1,0 +1,80 @@
+---
+title: "6_1"
+author: "romangub"
+output: 
+  html_document:
+    css: style.css
+---
+
+## Введение
+
+Этот отчет демонстрирует анализ данных о фильмах Star Wars с использованием функционального программирования.
+
+### Используемые пакеты
+
+```{r setup, include=FALSE}
+library(repurrrsive)
+library(purrr)
+library(dplyr)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Данные
+
+В пакете `repurrrsive` содержится информация о `r length(sw_films)` фильмах.
+
+### Создание именованного списка
+
+```{r named_list}
+named_sw_films <- sw_films %>%
+  set_names(map_chr(sw_films, ~ .x$title))
+
+# Выводим названия фильмов
+film_names <- names(named_sw_films)
+```
+
+Доступные фильмы: 
+`r paste(film_names, collapse = ", ")`
+
+### Статистика по эпизодам
+
+```{r episodes_stats}
+# Создаем таблицу с основной информацией
+films_info <- map_dfr(named_sw_films, ~ {
+  data.frame(
+    Эпизод = .x$episode_id,
+    Режиссер = .x$director,
+    Продюсер = .x$producer,
+    Дата_выпуска = .x$release_date,
+    Количество_персонажей = length(.x$characters)
+  )
+}, .id = "Фильм")
+
+print(films_info)
+```
+
+## Расчеты
+
+Среднее количество персонажей в фильме: 
+`r mean(films_info$Количество_персонажей) %>% round(1)`
+
+Общее количество уникальных персонажей во всех фильмах: 
+`r sw_films %>% map("characters") %>% flatten() %>% unique() %>% length()`
+
+## Форматирование текста
+
+- **Жирный текст** для важной информации
+- *Курсив* для дополнительных заметок
+- ~~Зачеркнутый~~ текст для демонстрации
+
+### Математические формулы
+
+Формула расчета среднего: 
+$$\bar{x} = \frac{1}{n}\sum_{i=1}^{n}x_i$$
+
+Температурная конвертация:
+$$ Fahrenheit = Celsius \times \frac{9}{5} + 32 $$
+
+## Заключение
+
+Динамический отчет позволяет сочетать код, текст и расчеты в одном документе.
